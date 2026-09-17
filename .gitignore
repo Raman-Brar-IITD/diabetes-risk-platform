@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+final_project/
+.ipynb_checkpoints/
+catboost_info/
+
+# raw data is downloaded separately, see data/*/raw/README.md
+data/screening/raw/*.csv
+data/clinical/raw/*.csv
+
+# trained artifacts ARE committed (outputs/**/models/*.pkl, outputs/**/*.csv) —
+# needed at runtime for a public deploy that doesn't retrain on startup.
+
+.streamlit/secrets.toml
+.DS_Store

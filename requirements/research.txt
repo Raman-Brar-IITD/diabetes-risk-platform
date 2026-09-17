@@ -1,0 +1,15 @@
+# Used by notebooks/kaggle_training.ipynb — install these there, not in the app.
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+xgboost
+lightgbm
+catboost
+interpret
+imbalanced-learn
+shap
+joblib
+pyyaml
+tensorflow
