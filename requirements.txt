@@ -1,0 +1,4 @@
+# Streamlit Community Cloud looks for requirements.txt at the repo root.
+# The real, maintained dependency list lives at requirements/app.txt —
+# this just points pip at it so no "advanced settings" step is needed.
+-r requirements/app.txt
