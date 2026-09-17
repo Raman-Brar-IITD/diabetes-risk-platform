@@ -1,0 +1,20 @@
+[
+  "age",
+  "bmi",
+  "HbA1c_level",
+  "blood_glucose_level",
+  "gender_Male",
+  "gender_Other",
+  "smoking_history_current",
+  "smoking_history_ever",
+  "smoking_history_former",
+  "smoking_history_never",
+  "smoking_history_not current",
+  "HbA1c_Category_Normal",
+  "HbA1c_Category_Prediabetes",
+  "Glucose_Category_Normal",
+  "Glucose_Category_Prediabetes",
+  "hypertension",
+  "heart_disease",
+  "Comorbidity_Score"
+]

@@ -1,0 +1,23 @@
+# Single source of truth for paths, thresholds, and risk tiers.
+# src/ code and notebooks/kaggle_training.ipynb both read from this.
+
+random_state: 42
+test_size: 0.2
+
+screening:
+  raw_data: data/screening/raw/diabetes_binary_health_indicators_BRFSS2015.csv
+  target: Diabetes_binary
+  output_dir: outputs/screening
+  threshold: 0.45
+  risk_tiers:
+    low: 0.30
+    medium: 0.60
+
+clinical:
+  raw_data: data/clinical/raw/diabetes_prediction_dataset.csv
+  target: diabetes
+  output_dir: outputs/clinical
+  threshold: 0.50
+  risk_tiers:
+    low: 0.30
+    medium: 0.60

@@ -1,0 +1,18 @@
+# Lean, pinned deps for the dashboard. The Kaggle notebook can deploy any
+# of 4 tree-based models (see TREE_MODELS in notebooks/kaggle_training.ipynb)
+# — check outputs/*/models/metadata.json's "model_name" field to see which
+# one actually got saved, but since either pipeline could land on any of
+# them, all 4 libraries are listed so unpickling always works regardless.
+# RandomForest/LogisticRegression need no separate entry — scikit-learn
+# covers both.
+streamlit==1.64.0
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.6.1
+xgboost==2.1.4
+lightgbm
+catboost
+shap==0.46.0
+joblib==1.4.2
+plotly>=5.20
+pyyaml==6.0.1

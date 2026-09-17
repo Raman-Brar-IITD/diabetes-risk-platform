@@ -1,0 +1,91 @@
+{
+  "model_name": "LightGBM",
+  "chosen_threshold": 0.86,
+  "test_metrics": {
+    "accuracy": 0.971346853874155,
+    "precision": 0.9561752988047809,
+    "recall": 0.7075471698113207,
+    "f1": 0.8132836326668926,
+    "roc_auc": 0.9763084955159893
+  },
+  "random_state": 42,
+  "risk_tiers": {
+    "low": 0.3,
+    "medium": 0.6
+  },
+  "overall_best_model": "EBM",
+  "comparison_table": [
+    {
+      "accuracy": 0.9709828393135725,
+      "precision": 0.9559294871794872,
+      "recall": 0.7034198113207547,
+      "f1": 0.8104619565217391,
+      "roc_auc": 0.9780605833733276,
+      "model": "EBM",
+      "threshold": 0.89
+    },
+    {
+      "accuracy": 0.971346853874155,
+      "precision": 0.9561752988047809,
+      "recall": 0.7075471698113207,
+      "f1": 0.8132836326668926,
+      "roc_auc": 0.9763084955159893,
+      "model": "LightGBM",
+      "threshold": 0.86
+    },
+    {
+      "accuracy": 0.9702028081123245,
+      "precision": 0.9568755085435313,
+      "recall": 0.6933962264150944,
+      "f1": 0.8041025641025641,
+      "roc_auc": 0.975048409989433,
+      "model": "CatBoost",
+      "threshold": 0.89
+    },
+    {
+      "accuracy": 0.9619864794591784,
+      "precision": 0.8032683846637335,
+      "recall": 0.7535377358490566,
+      "f1": 0.7776087617888652,
+      "roc_auc": 0.9749606761311177,
+      "model": "StackedEnsemble",
+      "threshold": 0.89
+    },
+    {
+      "accuracy": 0.9704628185127405,
+      "precision": 0.9585365853658536,
+      "recall": 0.6951650943396226,
+      "f1": 0.8058783321941216,
+      "roc_auc": 0.9742784604735597,
+      "model": "XGBoost",
+      "threshold": 0.89
+    },
+    {
+      "accuracy": 0.9651586063442538,
+      "precision": 0.8811292719167905,
+      "recall": 0.6992924528301887,
+      "f1": 0.779750164365549,
+      "roc_auc": 0.971801450174432,
+      "model": "NeuralNet",
+      "threshold": 0.87
+    },
+    {
+      "accuracy": 0.9579823192927717,
+      "precision": 0.8378995433789954,
+      "recall": 0.6491745283018868,
+      "f1": 0.7315614617940199,
+      "roc_auc": 0.9658730087205235,
+      "model": "LogisticRegression",
+      "threshold": 0.89
+    },
+    {
+      "accuracy": 0.971606864274571,
+      "precision": 0.9991319444444444,
+      "recall": 0.6786556603773585,
+      "f1": 0.8082865168539326,
+      "roc_auc": 0.9648730478628046,
+      "model": "RandomForest",
+      "threshold": 0.76
+    }
+  ]
+}
