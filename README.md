@@ -22,7 +22,8 @@ src/etl/        load + clean each dataset
 src/features/   feature engineering, one module per pipeline
 src/models/     scoring (lightweight) and single-model retraining scripts
 src/agents/     prediction -> explanation -> recommendation -> alert
-app/            Streamlit dashboard
+app/            Streamlit app: app.py (navigation), views/ (pages), forms.py,
+                components.py, services.py, helpers.py (pure, unit-tested)
 notebooks/      full 8-model comparison notebook, built to run on Kaggle
 outputs/        trained artifacts (populated after training)
 docs/           dataset cards, model card
@@ -71,18 +72,35 @@ In short: screening data is self-reported survey data, not lab data; the
 clinical dataset is a public research dataset, not real hospital records.
 This is a decision-support prototype, not a diagnostic tool.
 
+## Pages
+
+- **Check my risk** (patients): a stepped form with plain-language results, the
+  reasons behind the estimate, next steps, a downloadable report and
+  what-if sliders. A high quick-check result offers to continue to the
+  lab-based check with shared answers prefilled (the two models stay
+  independent). Patients can untick *Save this result* to store nothing.
+- **Clinician workspace** (signed-in clinicians, off by default): KPIs, a
+  filterable worklist, a case view with the stored answers and explanation,
+  "mark reviewed" with a note, and a patient lookup with a risk trend.
+- **Model insights**: how the deployed model behaves on held-out data.
+- **Privacy and access**: renders `docs/privacy_and_access.md`.
+
+## Optional, off-by-default features
+
+- **Persistence** (`src/persistence/`): assessments are recorded to a hosted
+  Postgres database (e.g. Supabase) when `DATABASE_URL` is set in secrets.
+  Missing columns are added to an existing table automatically.
+- **Clinician workspace**: enabled by `features.clinician_worklist = true` in
+  secrets. See `app/.streamlit/secrets.toml.example` for the required keys and
+  `docs/privacy_and_access.md` for what this access model does and doesn't cover.
+- **AI-written narratives**: set `ANTHROPIC_API_KEY` (or `OPENAI_API_KEY`) to
+  have the explanation and suggestions written by an LLM; otherwise standard
+  wording is used. Settings live in the `agents:` block of
+  `config/model_config.yaml`.
+
 ## Future work
 
-Optional, off-by-default additions on top of the base app:
-
-- **Persistence** (`src/persistence/`): each assessment is recorded to a
-  hosted Postgres database (e.g. Supabase) when `DATABASE_URL` is set in
-  secrets — replacing the in-memory `AlertAgent.alert_log`, which never
-  survived a process restart and was never read back anywhere.
-- **Clinician Worklist tab**: a login-gated view of recent high-risk
-  assessments, enabled by setting `features.clinician_worklist = true` in
-  secrets. See `app/.streamlit/secrets.toml.example` for the required keys
-  and `docs/privacy_and_access.md` for what this access model does and
-  doesn't cover.
-- Not implemented: monitoring/drift detection, model/dataset versioning
-  beyond `metadata.json`, RBAC, audit logging of worklist views.
+- Monitoring/drift detection, model/dataset versioning beyond `metadata.json`.
+- Role-based access control and audit logging of who viewed which record.
+- Translated (e.g. Hindi) patient text — needs clinical review of every string.
+- A PDF report (the current download is plain text).
