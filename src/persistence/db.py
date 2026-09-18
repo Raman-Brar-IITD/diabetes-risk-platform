@@ -6,11 +6,15 @@ anything built on repository.py) works the same in tests and scripts
 with no Streamlit involved.
 """
 import os
+import threading
 
 from sqlalchemy import create_engine
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
 
 from src.persistence.models import Base
+
+_init_lock = threading.Lock()
 
 
 def _database_url():
@@ -49,6 +53,14 @@ def get_session():
     if engine is None:
         return None
     if _SessionLocal is None:
-        init_db(engine)
-        _SessionLocal = sessionmaker(bind=engine)
+        with _init_lock:
+            if _SessionLocal is None:
+                try:
+                    init_db(engine)
+                except SQLAlchemyError:
+                    # Two concurrent Streamlit sessions can both see "table
+                    # doesn't exist yet" and race to create it — harmless as
+                    # long as the tables end up existing either way.
+                    pass
+                _SessionLocal = sessionmaker(bind=engine)
     return _SessionLocal()
