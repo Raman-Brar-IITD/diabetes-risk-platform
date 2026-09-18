@@ -70,3 +70,19 @@ See `docs/dataset_card_screening.md` and `docs/dataset_card_clinical.md`.
 In short: screening data is self-reported survey data, not lab data; the
 clinical dataset is a public research dataset, not real hospital records.
 This is a decision-support prototype, not a diagnostic tool.
+
+## Future work
+
+Optional, off-by-default additions on top of the base app:
+
+- **Persistence** (`src/persistence/`): each assessment is recorded to a
+  hosted Postgres database (e.g. Supabase) when `DATABASE_URL` is set in
+  secrets — replacing the in-memory `AlertAgent.alert_log`, which never
+  survived a process restart and was never read back anywhere.
+- **Clinician Worklist tab**: a login-gated view of recent high-risk
+  assessments, enabled by setting `features.clinician_worklist = true` in
+  secrets. See `app/.streamlit/secrets.toml.example` for the required keys
+  and `docs/privacy_and_access.md` for what this access model does and
+  doesn't cover.
+- Not implemented: monitoring/drift detection, model/dataset versioning
+  beyond `metadata.json`, RBAC, audit logging of worklist views.

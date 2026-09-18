@@ -17,6 +17,7 @@ if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
 from src.agents.agents import build_pipeline  # noqa: E402
+from src.persistence import db, repository  # noqa: E402
 from app import labels as L  # noqa: E402
 
 st.set_page_config(page_title="Diabetes Risk Platform", page_icon="🩺", layout="wide")
@@ -93,9 +94,19 @@ def clinical_form():
 
 
 def render_assessment_tab(pipeline: str):
+    st.info("Enter the patient's name below. This app stores assessment results "
+            "(including the name and inputs you provide) for clinician review. Only "
+            "enter information for a patient you have permission to assess — do not "
+            "enter another person's details without their consent.")
+    patient_name = st.text_input("Patient name")
+
     patient = screening_form() if pipeline == "screening" else clinical_form()
 
     if st.button("Run assessment", type="primary"):
+        if not patient_name.strip():
+            st.warning("Enter the patient's name before running an assessment.")
+            return
+
         try:
             orchestrator = get_orchestrator(pipeline)
         except FileNotFoundError:
@@ -103,7 +114,19 @@ def render_assessment_tab(pipeline: str):
                      "notebook / script and place its outputs in outputs/{}/models/ first.".format(pipeline))
             return
 
-        report = orchestrator.run(patient)
+        report = orchestrator.run(patient, patient_id=patient_name.strip())
+
+        try:
+            session = db.get_session()
+            if session is not None:
+                repository.record_assessment(
+                    session, patient_name.strip(), pipeline, patient, report,
+                    meta=get_metadata(pipeline),
+                )
+                session.close()
+        except Exception:
+            pass  # persistence is best-effort; never break the assessment UX
+
         tier = report["risk_tier"]
         color = {"Low Risk": "green", "Medium Risk": "orange", "High Risk": "red"}[tier]
 
@@ -146,18 +169,64 @@ def render_about_tab(pipeline: str):
         st.info("No metadata.json found yet for this pipeline.")
 
 
+def render_worklist_tab(pipeline: str):
+    from app.auth import get_authenticator
+
+    authenticator = get_authenticator()
+    authenticator.login()
+
+    if st.session_state.get("authentication_status") is False:
+        st.error("Username/password is incorrect.")
+        return
+    if st.session_state.get("authentication_status") is not True:
+        st.info("Log in to view the clinician worklist.")
+        return
+
+    authenticator.logout()
+    session = db.get_session()
+    if session is None:
+        st.info("No database configured — nothing to show yet.")
+        return
+
+    rows = repository.get_worklist(session, pipeline=pipeline, only_flagged=True)
+    session.close()
+    if not rows:
+        st.info("No high-risk assessments recorded yet for this pipeline.")
+        return
+    st.caption(f"{len(rows)} high-risk assessment(s), most recent first.")
+    st.dataframe(rows, use_container_width=True)
+
+
+def _worklist_enabled():
+    # st.secrets raises StreamlitSecretNotFoundError on any access, including
+    # .get(), when no secrets.toml exists anywhere — not just an empty dict.
+    try:
+        return bool(st.secrets.get("features", {}).get("clinician_worklist", False))
+    except Exception:
+        return False
+
+
 def main():
     st.title("🩺 Diabetes Risk Platform")
     pipeline_label = st.sidebar.radio("Pipeline", list(PIPELINES))
     pipeline = PIPELINES[pipeline_label]
 
-    tab1, tab2, tab3 = st.tabs(["Assessment", "Cohort Insights", "About"])
-    with tab1:
+    worklist_enabled = _worklist_enabled()
+
+    tab_names = ["Assessment", "Cohort Insights", "About"]
+    if worklist_enabled:
+        tab_names.append("Clinician Worklist")
+    tabs = st.tabs(tab_names)
+
+    with tabs[0]:
         render_assessment_tab(pipeline)
-    with tab2:
+    with tabs[1]:
         render_cohort_tab(pipeline)
-    with tab3:
+    with tabs[2]:
         render_about_tab(pipeline)
+    if worklist_enabled:
+        with tabs[3]:
+            render_worklist_tab(pipeline)
 
 
 if __name__ == "__main__":
