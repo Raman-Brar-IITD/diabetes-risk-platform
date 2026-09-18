@@ -108,4 +108,10 @@ CLINICAL_FEATURE_LABELS = {
     "heart_disease": "heart disease", "smoking_history": "smoking history",
     "bmi": "BMI", "HbA1c_level": "HbA1c level", "blood_glucose_level": "blood glucose level",
     "Comorbidity_Score": "combined comorbidity score",
+    # One-hot columns actually present in the trained model's feature set
+    # (see outputs/clinical/models/feature_names.json) — previously
+    # missing here, so any of these landing in a patient's top SHAP
+    # factors would have shown up as a raw column name like
+    # "HbA1c_Category_Prediabetes" instead of a readable label.
+    "HbA1c_Category": "HbA1c band", "Glucose_Category": "glucose band",
 }

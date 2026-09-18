@@ -19,3 +19,14 @@ pyyaml==6.0.1
 sqlalchemy>=2.0
 psycopg2-binary>=2.9
 streamlit-authenticator>=0.4
+
+# Used by src/agents/agents.py's ExplainerAgent/RecommenderAgent when
+# ANTHROPIC_API_KEY is set, to generate patient-facing narratives instead
+# of the built-in template fallback. Previously imported there but never
+# actually listed here, so that code path always fell through to the
+# template regardless of whether a key was configured.
+anthropic>=1.0,<2.0
+# Optional second provider — only imported if OPENAI_API_KEY is set (and
+# only as a fallback if Anthropic isn't configured or its call fails).
+# Uncomment if you want that fallback available:
+# openai>=1.0,<2.0

@@ -21,3 +21,20 @@ clinical:
   risk_tiers:
     low: 0.30
     medium: 0.60
+
+# Read by src/agents/agents.py (build_pipeline). Model names can also be
+# overridden per-deployment with the ANTHROPIC_MODEL / OPENAI_MODEL env
+# vars without editing this file. Anthropic is tried first; OpenAI is a
+# fallback if ANTHROPIC_API_KEY isn't set (or its call fails and
+# OPENAI_API_KEY is also set). Neither is required — with no key set, both
+# the Explainability and Recommendation agents use their template
+# fallback, so the app works fully offline.
+agents:
+  top_n_factors: 4          # SHAP factors shown/explained per assessment
+  retrieval_k: 3             # guideline snippets retrieved per recommendation
+  llm_model_anthropic: claude-sonnet-5
+  llm_model_openai: gpt-4o-mini
+  llm_max_tokens: 250
+  llm_timeout_seconds: 15
+  llm_max_retries: 2
+  alert_tiers: ["High Risk"] # risk tiers that escalate to the alert queue
