@@ -8,7 +8,7 @@ with no Streamlit involved.
 import os
 import threading
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
 
@@ -31,6 +31,11 @@ _engine = None
 _SessionLocal = None
 
 
+def is_configured() -> bool:
+    """Whether a DATABASE_URL is available. Doesn't open a connection."""
+    return bool(_database_url())
+
+
 def get_engine():
     global _engine
     if _engine is None:
@@ -41,9 +46,50 @@ def get_engine():
     return _engine
 
 
+# Columns added after the first release. create_all() never alters a table
+# that already exists (e.g. the live Supabase one), so these are added in
+# place when missing. Names/types are constants — nothing user-supplied is
+# ever interpolated into the DDL below.
+ADDED_COLUMNS = {
+    "assessments": {
+        "explanation_text": "TEXT",
+        "recommendation_text": "TEXT",
+        "top_factors_json": "JSON",
+        "reviewed": "BOOLEAN DEFAULT FALSE",
+        "reviewed_by": "VARCHAR",
+        "reviewed_at": "TIMESTAMP",
+        "review_note": "TEXT",
+    },
+}
+
+
+def ensure_columns(engine):
+    """Adds any ADDED_COLUMNS missing from existing tables. Idempotent."""
+    inspector = inspect(engine)
+    if_not_exists = "IF NOT EXISTS " if engine.dialect.name == "postgresql" else ""
+    for table, columns in ADDED_COLUMNS.items():
+        if not inspector.has_table(table):
+            continue
+        existing = {c["name"] for c in inspector.get_columns(table)}
+        for name, ddl_type in columns.items():
+            if name in existing:
+                continue
+            try:
+                with engine.begin() as conn:
+                    conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {if_not_exists}{name} {ddl_type}"))
+            except SQLAlchemyError:
+                # Another process added it between the check and the ALTER.
+                pass
+
+
 def init_db(engine):
-    """Creates any missing tables. Additive and idempotent — safe to call every startup."""
-    Base.metadata.create_all(engine)
+    """Creates missing tables and columns. Additive and idempotent — safe to call every startup."""
+    try:
+        Base.metadata.create_all(engine)
+    except SQLAlchemyError:
+        # Concurrent first-time creation race — harmless if the tables exist.
+        pass
+    ensure_columns(engine)
 
 
 def get_session():
