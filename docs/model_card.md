@@ -40,3 +40,5 @@ explanations agree.
 - Neither dataset is real hospital EHR data (see dataset cards)
 - Probabilities are not calibrated for any specific deployment population
 - No monitoring/drift detection is implemented — see README "Future work"
+- See `docs/privacy_and_access.md` for what identity/persistence data this
+  app stores and what a real clinical deployment would still need

@@ -14,4 +14,5 @@ data/clinical/raw/*.csv
 # needed at runtime for a public deploy that doesn't retrain on startup.
 
 .streamlit/secrets.toml
+app/.streamlit/secrets.toml
 .DS_Store
